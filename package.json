@@ -1,0 +1,44 @@
+{
+  "name": "expense-tracker-backend",
+  "version": "1.0.0",
+  "description": "expense-tracker-backend",
+  "main": "index.js",
+  "scripts": {
+    "compile": "tsc",
+    "start": "npm run compile && node ./dist/index.js",
+    "dev": "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devshah17/expense-tracker-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/devshah17/expense-tracker-backend/issues"
+  },
+  "homepage": "https://github.com/devshah17/expense-tracker-backend#readme",
+  "dependencies": {
+    "@apollo/server": "^4.12.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "graphql": "^16.11.0",
+    "graphql-tag": "^2.12.6",
+    "mongoose": "^8.14.0"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/body-parser": "^1.19.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/graphql": "^14.2.3",
+    "@types/node": "^22.15.2",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
