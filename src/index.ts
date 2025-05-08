@@ -1,9 +1,8 @@
-// index.js
 import express from 'express';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
-import { typeDefs } from './schema/typeDefs.ts';
-import { resolvers } from './schema/resolvers.ts';
+import { typeDefs } from './schema/typeDefs/index.ts';
+import { resolvers } from './schema/resolvers/index.ts';
 import cors from 'cors';
 import { connectDB } from './config/db.ts';
 import * as dotenv from "dotenv";
