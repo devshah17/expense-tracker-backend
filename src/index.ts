@@ -6,6 +6,7 @@ import { resolvers } from './schema/resolvers/index.ts';
 import cors from 'cors';
 import { connectDB } from './config/db.ts';
 import * as dotenv from "dotenv";
+import { verifyAndFetchUser } from './utils/middlewares/verifyToken.ts';
 dotenv.config()
 
 const app = express();
@@ -27,9 +28,20 @@ async function startApolloServer() {
     app.use(
         '/graphql',
         expressMiddleware(server, {
-            context: async ({ req }) => ({
-                token: req.headers.authorization || null
-            })
+            context: async ({ req }) => {
+                const token = req.headers.authorization || null;
+                let user = null;
+                let authError = null;
+                if (token) {
+                    const result = await verifyAndFetchUser(token);
+                    if (result.status !== 200) {
+                        authError = { status: result.status, logIn: result.logIn, message: result.message };
+                    } else {
+                        user = result.user;
+                    }
+                }
+                return { token, user, authError };
+            }
         }) as unknown as express.RequestHandler
     );
 

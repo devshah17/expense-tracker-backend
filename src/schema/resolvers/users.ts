@@ -2,10 +2,48 @@ import { User } from "../../models/User.ts";
 import { Role } from "../../models/Role.ts";
 import { Permission } from "../../models/Permission.ts";
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+import { checkPermission } from '../../utils/middlewares/verifyToken.ts';
 
 export const userResolvers = {
     Query: {
-        users: async () => await User.find().populate('roles').populate('permissions'),
+        users: async (_: any, __: any, context: any) => {
+            if (context.authError) {
+                return {
+                    success: false,
+                    data: null,
+                    message: context.authError.message,
+                    logIn: context.authError.logIn,
+                    status: context.authError.status
+                };
+            }
+            if (!context.user) {
+                return {
+                    success: false,
+                    data: null,
+                    message: 'Not authenticated',
+                    logIn: false,
+                    status: 401
+                };
+            }
+            if (!checkPermission(context.user, 'view_users')) {
+                return {
+                    success: false,
+                    data: null,
+                    message: 'Not authorized',
+                    logIn: true,
+                    status: 403
+                };
+            }
+            const users = await User.find().populate('roles').populate('permissions');
+            return {
+                success: true,
+                data: users,
+                message: 'Users fetched successfully',
+                logIn: true,
+                status: 200
+            };
+        },
         user: async (_: any, { id }: { id: string }) => {
             const user = await User.findById(id).populate('roles').populate('permissions');
             if (!user) throw new Error("User not found");
@@ -131,5 +169,59 @@ export const userResolvers = {
             await user.save();
             return user;
         },
+
+        signIn: async (_: any, { email }: { email: string }) => {
+            const user = await User.findOne({ email });
+            if (!user) {
+                return {
+                    success: false,
+                    data: null,
+                    message: "User not found!",
+                    status: 404
+                };
+            }
+            const otp = Math.floor(100000 + Math.random() * 900000).toString();
+            user.otp = otp;
+            await user.save();
+            return {
+                success: true,
+                data: user,
+                message: "User found!",
+                status: 200
+            };
+        },
+
+        verifyOtp: async (_: any, { email, otp }: { email: string, otp: string }) => {
+            const user = await User.findOne({ email });
+            if (!user) {
+                return {
+                    success: false,
+                    data: null,
+                    message: "User not found!"
+                };
+            }
+            if (user.otp !== otp) {
+                return {
+                    success: false,
+                    data: null,
+                    message: "Invalid OTP!"
+                };
+            }
+            const token = jwt.sign(
+                { userId: user._id, email: user.email },
+                process.env.JWT_SECRET || 'default_secret',
+                { expiresIn: '30d' }
+            );
+            user.otp = undefined;
+            await user.save();
+            return {
+                success: true,
+                data: {
+                    user,
+                    token
+                },
+                message: "OTP verified successfully!"
+            };
+        }
     },
 };

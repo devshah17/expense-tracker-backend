@@ -25,6 +25,23 @@ export const userTypeDefs = gql`
     profileImage: String
   }
 
+  type SignInResponse {
+    success: Boolean!
+    data: User
+    message: String!
+  }
+
+  type OtpVerifyResponse {
+    success: Boolean!
+    data: UserWithToken
+    message: String!
+  }
+
+  type UserWithToken {
+    user: User
+    token: String
+  }
+
   extend type Query {
     users: [User!]!
     user(id: ID!): User
@@ -51,5 +68,8 @@ export const userTypeDefs = gql`
       profileImage: String
       familyId: ID
     ): User!
+
+    signIn(email: String!, otp: String!): SignInResponse!
+    verifyOtp(email: String!, otp: String!): OtpVerifyResponse!
   }
 `;

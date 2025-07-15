@@ -1,11 +1,16 @@
 import mongoose from "mongoose";
 import { Permission } from "../../models/Permission.ts";
 import { Role } from "../../models/Role.ts";
+import { requireAuth } from "../../utils/middlewares/verifyToken.ts";
 
 export const roleResolvers = {
     Query: {
-        roles: async () => await Role.find().populate("permissions"),
-        role: async (_: any, { id }: { id: string }) => {
+        roles: async (_: any, __: any, context: any) => {
+            requireAuth(context);
+            return Role.find().populate("permissions");
+        },
+        role: async (_: any, { id }: { id: string }, context: any) => {
+            requireAuth(context);
             const role = await Role.findById(id).populate("permissions");
             if (!role) throw new Error("Role not found");
             return role;
@@ -14,8 +19,10 @@ export const roleResolvers = {
     Mutation: {
         createRole: async (
             _: any,
-            { name, key, permissionIds }: { name: string; key: string; permissionIds: string[] }
+            { name, key, permissionIds }: { name: string; key: string; permissionIds: string[] },
+            context: any
         ) => {
+            requireAuth(context);
             const existingPermissions = await Permission.find({
                 _id: { $in: permissionIds },
             });
@@ -47,8 +54,10 @@ export const roleResolvers = {
                 key?: string;
                 isActive?: boolean;
                 permissionIds?: string[];
-            }
+            },
+            context: any
         ) => {
+            requireAuth(context);
             if (permissionIds) {
                 const validPermissions = await Permission.find({
                     _id: { $in: permissionIds.map(pid => new mongoose.Types.ObjectId(pid)) },
