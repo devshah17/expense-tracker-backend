@@ -69,7 +69,7 @@ export const userTypeDefs = gql`
       familyId: ID
     ): User!
 
-    signIn(email: String!, otp: String!): SignInResponse!
+    signIn(email: String!): SignInResponse!
     verifyOtp(email: String!, otp: String!): OtpVerifyResponse!
   }
 `;

@@ -9,6 +9,8 @@ import { categoryTypeDefs } from "./category.ts";
 import { subCategoryTypeDefs } from "./subCategory.ts";
 import { budgetTypeDefs } from "./budget.ts";
 import { transactionTypeDefs } from "./transactions.ts";
+import { investmentTypeDefs } from "./investment.ts";
+import { investmentTransactionTypeDefs } from "./investmentTransaction.ts";
 
 export const baseTypeDefs = gql`
   type Query
@@ -27,4 +29,6 @@ export const typeDefs = [
   transferTypeDefs,
   oweTypeDefs,
   transactionTypeDefs,
+  investmentTypeDefs,
+  investmentTransactionTypeDefs,
 ];

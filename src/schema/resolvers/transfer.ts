@@ -1,6 +1,7 @@
 import { Transfer } from "../../models/Transfer.ts";
 import mongoose from "mongoose";
 import { requireAuth } from "../../utils/middlewares/verifyToken.ts";
+import { Transaction } from "../../models/Transactions.ts";
 
 export const transferResolvers = {
     Query: {
@@ -21,15 +22,43 @@ export const transferResolvers = {
             context: any
         ) => {
             requireAuth(context);
+            const userId = new mongoose.Types.ObjectId(context.user._id);
+            // 1. Create expense transaction from fromAccountId
+            const expenseTransaction = new Transaction({
+                amount,
+                type: 'expense',
+                date: date ? new Date(date) : undefined,
+                notes,
+                accountId: new mongoose.Types.ObjectId(fromAccountId),
+                userId,
+            });
+            await expenseTransaction.save();
+
+            // 2. Create income transaction to toAccountId
+            const incomeTransaction = new Transaction({
+                amount,
+                type: 'income',
+                date: date ? new Date(date) : undefined,
+                notes,
+                accountId: new mongoose.Types.ObjectId(toAccountId),
+                userId,
+            });
+            await incomeTransaction.save();
+
+            // 3. Create the Transfer
             const transfer = new Transfer({
                 fromAccountId: new mongoose.Types.ObjectId(fromAccountId),
                 toAccountId: new mongoose.Types.ObjectId(toAccountId),
                 amount,
                 date: date ? new Date(date) : undefined,
                 notes,
-                userId: new mongoose.Types.ObjectId(context.user._id),
+                userId,
             });
             await transfer.save();
+
+            await Transaction.findByIdAndUpdate(expenseTransaction._id, { transferId: transfer._id });
+            await Transaction.findByIdAndUpdate(incomeTransaction._id, { transferId: transfer._id });
+
             return transfer;
         },
         updateTransfer: async (

@@ -8,6 +8,8 @@ import { transferResolvers } from "./transfer.ts";
 import { oweResolvers } from "./owe.ts";
 import { budgetResolvers } from "./budget.ts";
 import { transactionResolvers } from "./transactions.ts";
+import { investmentResolvers } from "./investment.ts";
+import { investmentTransactionResolvers } from "./investmentTransaction.ts";
 
 export const resolvers = {
     Query: {
@@ -21,6 +23,8 @@ export const resolvers = {
         ...transferResolvers.Query,
         ...oweResolvers.Query,
         ...transactionResolvers.Query,
+        ...investmentResolvers.Query,
+        ...investmentTransactionResolvers.Query,
     },
     Mutation: {
         ...budgetResolvers.Mutation,
@@ -33,5 +37,7 @@ export const resolvers = {
         ...transferResolvers.Mutation,
         ...oweResolvers.Mutation,
         ...transactionResolvers.Mutation,
+        ...investmentResolvers.Mutation,
+        ...investmentTransactionResolvers.Mutation,
     },
 };

@@ -29,7 +29,8 @@
     "graphql": "^16.11.0",
     "graphql-tag": "^2.12.6",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.14.0"
+    "mongoose": "^8.14.0",
+    "nodemailer": "^7.0.5"
   },
   "type": "module",
   "devDependencies": {

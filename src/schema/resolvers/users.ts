@@ -4,6 +4,8 @@ import { Permission } from "../../models/Permission.ts";
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import { checkPermission } from '../../utils/middlewares/verifyToken.ts';
+import { sendMail } from '../../utils/mailer/sendMail.ts';
+import { OTP_EMAIL_TEMPLATE } from '../../utils/constants/email.ts';
 
 export const userResolvers = {
     Query: {
@@ -183,10 +185,21 @@ export const userResolvers = {
             const otp = Math.floor(100000 + Math.random() * 900000).toString();
             user.otp = otp;
             await user.save();
+
+            // Send OTP email with CSS design
+            const subject = 'Your OTP Code for Login';
+            const body = OTP_EMAIL_TEMPLATE({ name: user.name, email: user.email, otp });
+            try {
+                await sendMail({ subject, body, to: user.email, consoleMessage: `OTP mail sent to ${user.email}` });
+            } catch (e) {
+                // Optionally log or handle mail sending error
+                console.error('Failed to send OTP email:', e);
+            }
+
             return {
                 success: true,
                 data: user,
-                message: "User found!",
+                message: "User found! OTP sent to email.",
                 status: 200
             };
         },
